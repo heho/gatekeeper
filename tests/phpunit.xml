@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="bootstrap.php">
+	<filter>
+		<whitelist>
+			<directory suffix=".php">../library/</directory>
+		</whitelist>
+	</filter>
+	<testsuites>
+		<testsuite name="all">
+			<directory>./gatekeeper/</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
