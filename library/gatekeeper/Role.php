@@ -8,5 +8,18 @@ namespace gatekeeper;
  */
 interface Role
 {
-	public function getId ();
+	/**
+	 * Returns the role's id
+	 *
+	 * @return string
+	 */
+	public function getRoleId ();
+
+	/**
+	 * Returns the parent role if there is any
+	 *
+	 * @return Role
+	 * @throws \gatekeeper\HasNoParentRoleException if there is no parent
+	 */
+	public function getParentRole ();
 }
