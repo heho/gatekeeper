@@ -16,11 +16,20 @@ class ACL
 	protected $isWhiteList = true;
 
 	/**
-	 * All the rules managed by this ACL
+	 * Repository that manages the rules
 	 *
-	 * @var array of Rule
+	 * @var \gatekeeper\RuleRepository
 	 */
-	protected $rules = array();
+	protected $repository = null;
+
+	/**
+	 *
+	 * @param \gatekeeper\RuleRepository $repository Repository to manage the rules
+	 */
+	public function __construct (RuleRepository $repository)
+	{
+		$this->repository = $repository;
+	}
 
 	/**
 	 * Sets the mode of the ACL
@@ -55,14 +64,13 @@ class ACL
 	 */
 	public function isAllowed (Role $role, Resource $resource)
 	{
-		$roleId = $role->getRoleId();
-		$resourceId = $resource->getResourceId();
-
-		if (isset($this->rules[$roleId][$resourceId]))
+		try
 		{
-			return $this->rules[$roleId][$resourceId];
+			$rule = $this->repository->getMostApplyingRule($role, $resource);
+
+			return $rule->isAllowed();
 		}
-		else
+		catch (ThereIsNoApplyingRuleException $e)
 		{
 			if ($this->isWhiteList())
 			{
@@ -84,15 +92,7 @@ class ACL
 	 */
 	public function allow (Role $role, Resource $resource)
 	{
-		$roleId = $role->getRoleId();
-		$resourceId = $resource->getResourceId();
-
-		if (!isset($this->rules[$roleId]))
-		{
-			$this->rules[$roleId] = array();
-		}
-
-		$this->rules[$roleId][$resourceId] = true;
+		$this->repository->addRule($role, $resource, true);
 	}
 
 	/**
@@ -104,14 +104,6 @@ class ACL
 	 */
 	public function deny (Role $role, Resource $resource)
 	{
-		$roleId = $role->getRoleId();
-		$resourceId = $resource->getResourceId();
-
-		if (!isset($this->rules[$roleId]))
-		{
-			$this->rules[$roleId] = array();
-		}
-
-		$this->rules[$roleId][$resourceId] = false;
+		$this->repository->addRule($role, $resource, false);
 	}
 }
